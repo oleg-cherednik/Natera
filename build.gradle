@@ -11,6 +11,7 @@ repositories {
 //version = '1.0'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
+mainClassName = ''
 
 dependencies {
     annotationProcessor("org.projectlombok:lombok:1.18.12")
@@ -22,12 +23,19 @@ dependencies {
 }
 
 jar {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
+
     from {
         configurations.compile.collect {it.isDirectory() ? it : zipTree(it)}
     }
 }
 
 task fatJar(type: Jar) {
+    manifest {
+        attributes 'Main-Class': mainClassName
+    }
     baseName = project.name
     from {configurations.compile.collect {it.isDirectory() ? it : zipTree(it)}}
     with jar
