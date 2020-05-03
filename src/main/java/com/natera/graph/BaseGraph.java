@@ -50,16 +50,16 @@ abstract class BaseGraph<T> {
         stack.add(srcVertexId);
         visited.add(srcVertexId);
 
-        if (dfs(srcVertexId, destVertexId, stack, visited)) {
-            List<Integer> path = new ArrayList<>(stack.size());
+        return dfs(srcVertexId, destVertexId, stack, visited) ? getPathFromStack(stack) : Collections.emptyList();
+    }
 
-            while (!stack.isEmpty())
-                path.add(stack.removeLast());
+    protected static List<Integer> getPathFromStack(Deque<Integer> stack) {
+        List<Integer> path = new ArrayList<>(stack.size());
 
-            return Collections.unmodifiableList(path);
-        }
+        while (!stack.isEmpty())
+            path.add(stack.removeLast());
 
-        return Collections.emptyList();
+        return Collections.unmodifiableList(path);
     }
 
     protected boolean dfs(int srcVertexId, int destVertexId, Deque<Integer> stack, Set<Integer> visited) {
