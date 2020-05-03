@@ -21,6 +21,7 @@ abstract class BaseGraph<T> {
 
     protected final Map<Integer, Vertex<T>> vertices = new HashMap<>();
     protected final Map<Integer, Map<String, Edge>> adj = new HashMap<>();
+
     protected int nextId;
 
     public int addVertex(T val) {
@@ -31,20 +32,17 @@ abstract class BaseGraph<T> {
     }
 
     protected void addEdge(int srcVertexId, int destVertexId/*, int weight*/) {
-        if (!vertices.containsKey(srcVertexId) || !vertices.containsKey(destVertexId))
-            throw new RuntimeException("invalid vertex id");
+        requireValidVertexId(srcVertexId);
+        requireValidVertexId(destVertexId);
+        requireUniqueEdge(srcVertexId, destVertexId);
 
-        Map<String, Edge> linkedEdges = adj.get(srcVertexId);
-        String edgeId = Edge.getId(srcVertexId, destVertexId/*, weight*/);
-
-        if (linkedEdges.containsKey(edgeId))
-            throw new RuntimeException("edge duplication");
-
-        linkedEdges.put(edgeId, new Edge(edgeId, srcVertexId, destVertexId));
+        Edge edge = new Edge(srcVertexId, destVertexId/*, weight*/);
+        adj.get(srcVertexId).put(edge.id, edge);
     }
 
     public List<Integer> getPath(int srcVertexId, int destVertexId) {
-        // TODO validation
+        requireValidVertexId(srcVertexId);
+        requireValidVertexId(destVertexId);
 
         Deque<Integer> stack = new LinkedList<>();
         Set<Integer> visited = new HashSet<>();
@@ -84,9 +82,21 @@ abstract class BaseGraph<T> {
         return false;
     }
 
+    protected final void requireValidVertexId(int vertexId) {
+        if (!vertices.containsKey(vertexId))
+            throw new RuntimeException(String.format("vertext id '%d' does not exist", vertexId));
+    }
+
+    protected final void requireUniqueEdge(int srcVertexId, int destVertexId) {
+        String edgeId = Edge.getId(srcVertexId, destVertexId);
+
+        if (adj.getOrDefault(srcVertexId, Collections.emptyMap()).containsKey(edgeId))
+            throw new RuntimeException(String.format("Edge '%d -> %d' duplication", srcVertexId, destVertexId));
+    }
+
     @ToString
     @RequiredArgsConstructor
-    protected static final class Vertex<T> {
+    protected static class Vertex<T> {
 
         private final int id;
         private final T val;
@@ -94,7 +104,6 @@ abstract class BaseGraph<T> {
     }
 
     @ToString
-    @RequiredArgsConstructor
     protected static class Edge {
 
         private final String id;
@@ -102,8 +111,14 @@ abstract class BaseGraph<T> {
         private final int destVertexId;
         // private final int weight;
 
-        public static String getId(int srcVertexId, int destVertexId/*, int weight*/) {
-            return String.format("[%d-%d]", srcVertexId, destVertexId);
+        public Edge(int srcVertexId, int destVertexId) {
+            id = getId(srcVertexId, destVertexId);
+            this.srcVertexId = srcVertexId;
+            this.destVertexId = destVertexId;
+        }
+
+        public static String getId(int srcVertexId, int destVertexId) {
+            return String.format("%d -> %d", srcVertexId, destVertexId);
         }
 
     }
