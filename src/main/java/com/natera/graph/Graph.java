@@ -1,6 +1,8 @@
 package com.natera.graph;
 
 /**
+ * Unidirected graph implementation
+ *
  * @author Oleg Cherednik
  * @since 02.05.2020
  */

@@ -14,23 +14,41 @@ import java.util.Map;
 import java.util.Set;
 
 /**
+ * Base implementation of <tt>unidirected</tt> and <tt>bidirected</tt> graphs. Edges are stored as <tt>adjacency list</tt>. Every {@link Vertex} and
+ * {@link Edge} have it's own unique id.
+ *
  * @author Oleg Cherednik
  * @since 03.05.2020
  */
 abstract class BaseGraph<T> {
 
+    /** key - vertex's id */
     protected final Map<Integer, Vertex<T>> vertices = new HashMap<>();
+    /** key - vertex's id and edge's id */
     protected final Map<Integer, Map<String, Edge>> adj = new HashMap<>();
 
-    protected int nextId;
+    protected int nextVertexId;
 
+    /**
+     * Add new vertex tot he graph with given {@code val}.
+     *
+     * @param val any {@literal nullable} value
+     * @return unique id of added vertex
+     */
     public int addVertex(T val) {
-        Vertex<T> vertex = new Vertex<>(nextId++, val);
+        Vertex<T> vertex = new Vertex<>(nextVertexId++, val);
         vertices.put(vertex.id, vertex);
         adj.put(vertex.id, new HashMap<>());
         return vertex.id;
     }
 
+    /**
+     * Add one edge between two vertices with given id.
+     *
+     * @param srcVertexId  source vertex's id
+     * @param destVertexId destination vertex's id
+     * @throws {@link RuntimeException} when vertex's id is unknown or edge already exists
+     */
     protected void addEdge(int srcVertexId, int destVertexId/*, int weight*/) {
         requireValidVertexId(srcVertexId);
         requireValidVertexId(destVertexId);
@@ -40,6 +58,16 @@ abstract class BaseGraph<T> {
         adj.get(srcVertexId).put(edge.id, edge);
     }
 
+    /**
+     * Retrieve not {@literal null} list of all vertices between two given vertices. This path could not be optimal. If this path exists, then first
+     * element of the retrieved list is source vertex's id ({@code srcVertexId}) and last one is destination vertex's id ({@code destVertexId}). If
+     * path is not exists, then empty list is retrieved.
+     *
+     * @param srcVertexId  source vertex's id
+     * @param destVertexId destination vertex's id
+     * @return not {@link null} list of vertices's ids
+     * @throws {@link RuntimeException} when vertex's id is unknown
+     */
     public List<Integer> getPath(int srcVertexId, int destVertexId) {
         requireValidVertexId(srcVertexId);
         requireValidVertexId(destVertexId);
