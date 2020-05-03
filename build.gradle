@@ -1,0 +1,38 @@
+plugins {
+    id 'java'
+    id 'application'
+    id 'io.franzbecker.gradle-lombok' version '1.14'
+}
+
+repositories {
+    jcenter()
+}
+
+//version = '1.0'
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+dependencies {
+    annotationProcessor("org.projectlombok:lombok:1.18.12")
+
+    testImplementation 'org.testng:testng:6.14.3'
+    testImplementation 'org.assertj:assertj-core:3.11.1'
+
+    testAnnotationProcessor("org.projectlombok:lombok:1.18.12")
+}
+
+jar {
+    from {
+        configurations.compile.collect {it.isDirectory() ? it : zipTree(it)}
+    }
+}
+
+task fatJar(type: Jar) {
+    baseName = project.name
+    from {configurations.compile.collect {it.isDirectory() ? it : zipTree(it)}}
+    with jar
+}
+
+test {
+    useTestNG()
+}
