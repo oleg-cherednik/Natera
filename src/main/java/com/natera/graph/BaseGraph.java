@@ -112,7 +112,7 @@ abstract class BaseGraph<T> {
 
     protected final void requireValidVertexId(int vertexId) {
         if (!vertices.containsKey(vertexId))
-            throw new RuntimeException(String.format("vertext id '%d' does not exist", vertexId));
+            throw new RuntimeException(String.format("vertex id '%d' does not exist", vertexId));
     }
 
     protected final void requireUniqueEdge(int srcVertexId, int destVertexId) {
